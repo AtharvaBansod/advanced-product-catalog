@@ -12,7 +12,7 @@ interface ProductGridProps {
 export const ProductGrid = ({ products, loading = false }: ProductGridProps) => {
   if (loading && products.length === 0) {
     return (
-      <div className="flex justify-center items-center min-h-[400px]">
+      <div className="flex justify-center items-center min-h-[400px] ">
         <LoadingSpinner size="lg" />
       </div>
     );
@@ -28,7 +28,7 @@ export const ProductGrid = ({ products, loading = false }: ProductGridProps) => 
 //   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 dark:bg-black dark:text-white">
       {products.map((product, index) => (
         <ProductCard key={product.id} product={product} index={index} />
       ))}

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { Star, ChevronLeft } from 'lucide-react';
+import { Star, ChevronLeft, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/contexts/CartContext';
 import { Product } from '@/types';
@@ -22,7 +22,6 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   const [reviews, setReviews] = useState<{rating: number, comment: string}[]>([]);
   const [comment, setComment] = useState('');
 
-  // Fetch product data
   useEffect(() => {
     const loadProduct = async () => {
       try {
@@ -73,7 +72,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     </div>
   );
 
-  // Calculate average rating
+
   const averageRating = reviews.length > 0 
     ? (reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length)
     : product.rating;
@@ -89,7 +88,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       </Button>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Product Images */}
+      
         <div>
           <div className="relative aspect-square w-full rounded-lg overflow-hidden mb-4">
             <Image
@@ -124,7 +123,6 @@ export default function ProductPage({ params }: { params: { id: string } }) {
           </div>
         </div>
 
-        {/* Product Info */}
         <div>
           <h1 className="text-3xl font-bold mb-2">{product.title}</h1>
           <div className="flex items-center gap-2 mb-4">
@@ -168,7 +166,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
               disabled={product.stock === 0}
               className="flex-1"
             >
-              {/* <ShoppingCart className="mr-2 h-4 w-4" /> */}
+              <ShoppingCart className="mr-2 h-4 w-4" />
               {product.stock === 0 
                 ? 'Out of Stock' 
                 : isInCart(product.id) 
@@ -177,7 +175,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
             </Button>
           </div>
 
-          {/* Product Details */}
+       
           <div className="space-y-2 mb-8">
             <h2 className="text-xl font-semibold">Details</h2>
             <p><span className="font-medium">Brand:</span> {product.brand}</p>
@@ -186,11 +184,11 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         </div>
       </div>
 
-      {/* Reviews Section */}
+     
       <div className="mt-12 border-t pt-8">
         <h2 className="text-2xl font-bold mb-6">Customer Reviews</h2>
         
-        {/* Rating Input */}
+     
         <div className="mb-8 p-6 bg-muted rounded-lg">
           <h3 className="text-lg font-medium mb-4">Rate this product</h3>
           <div className="flex items-center gap-2 mb-4">
@@ -225,7 +223,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
           </form>
         </div>
 
-        {/* Reviews List */}
+        
         {reviews.length > 0 ? (
           <div className="space-y-6">
             {reviews.map((review, index) => (

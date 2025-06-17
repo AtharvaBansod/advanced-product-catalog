@@ -93,7 +93,7 @@ export const CartSheet = () => {
   const { cartItems, totalItems, clearCart, totalPrice } = useCart();
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col ">
       <div className="flex-1 overflow-y-auto">
         {cartItems.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center">
