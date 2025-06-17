@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   description: "E-commerce platform",
   icons: {
     icon: [
-      { url: '/favicon.ico', type: 'image/x-icon' }
+      { url: '/favicon.ico',sizes: '48x48'  }
     ]
   }
 };
