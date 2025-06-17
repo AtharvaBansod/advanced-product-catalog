@@ -1,3 +1,5 @@
+
+// // components/layout/Navbar.tsx
 // 'use client';
 
 // import Link from 'next/link';
@@ -8,20 +10,19 @@
 // import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 // import { useCart } from '@/contexts/CartContext';
 // import { CartSheet } from '@/components/cart/CartSheet';
-// import { useState } from 'react';
 // import { useRouter } from 'next/navigation';
-// import { useDebounce } from '@/hooks/useDebounce';
+// import { useState } from 'react';
 
 // export const Navbar = () => {
 //   const { totalItems } = useCart();
 //   const [searchQuery, setSearchQuery] = useState('');
 //   const router = useRouter();
-//   const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
 //   const handleSearch = (e: React.FormEvent) => {
 //     e.preventDefault();
 //     if (searchQuery.trim()) {
 //       router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+//       setSearchQuery('');
 //     }
 //   };
 
@@ -33,52 +34,48 @@
 //             <span className="text-xl font-bold">ShopHub</span>
 //           </Link>
 
-//           <div className="flex items-center space-x-4 flex-1 max-w-md mx-4">
-//             <form onSubmit={handleSearch} className="flex-1">
-//               <div className="relative">
-//                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-//                 <Input
-//                   placeholder="Search products..."
-//                   value={searchQuery}
-//                   onChange={(e) => setSearchQuery(e.target.value)}
-//                   className="pl-8"
-//                 />
-//               </div>
-//             </form>
-//           </div>
+//           <form onSubmit={handleSearch} className="flex-1 max-w-md mx-4">
+//             <div className="relative">
+//               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+//               <Input
+//                 placeholder="Search products..."
+//                 value={searchQuery}
+//                 onChange={(e) => setSearchQuery(e.target.value)}
+//                 className="pl-8"
+//               />
+//             </div>
+//           </form>
 
-//           <div className="flex items-center space-x-2">
-//             <Sheet>
-//               <SheetTrigger asChild>
-//                 <Button variant="outline" size="sm" className="relative">
-//                   <ShoppingCart className="h-4 w-4" />
-//                   {totalItems > 0 && (
-//                     <Badge 
-//                       variant="destructive" 
-//                       className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs"
-//                     >
-//                       {totalItems}
-//                     </Badge>
-//                   )}
-//                 </Button>
-//               </SheetTrigger>
-//               <SheetContent>
-//                 <CartSheet />
-//               </SheetContent>
-//             </Sheet>
-//           </div>
+//           <Sheet>
+//             <SheetTrigger asChild>
+//               <Button variant="outline" size="sm" className="relative">
+//                 <ShoppingCart className="h-4 w-4" />
+//                 {totalItems > 0 && (
+//                   <Badge 
+//                     variant="destructive" 
+//                     className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs"
+//                   >
+//                     {totalItems}
+//                   </Badge>
+//                 )}
+//               </Button>
+//             </SheetTrigger>
+//             <SheetContent 
+//             className='px-5'
+//             >
+//               <CartSheet />
+//             </SheetContent>
+//           </Sheet>
 //         </div>
 //       </div>
 //     </nav>
 //   );
 // };
-
-
 // components/layout/Navbar.tsx
 'use client';
 
 import Link from 'next/link';
-import { ShoppingCart, Search } from 'lucide-react';
+import { ShoppingCart, Search, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -86,20 +83,84 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useCart } from '@/contexts/CartContext';
 import { CartSheet } from '@/components/cart/CartSheet';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useDebounce } from '@/hooks/useDebounce';
+import { useApiContext } from '@/contexts/ApiContext';
 
 export const Navbar = () => {
   const { totalItems } = useCart();
+  const { searchProducts } = useApiContext();
   const [searchQuery, setSearchQuery] = useState('');
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const router = useRouter();
+  const debouncedSearch = useDebounce(searchQuery, 300);
+  const searchRef = useRef<HTMLDivElement>(null);
+  const isNavigatingRef = useRef(false); // Add this ref
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
+      isNavigatingRef.current = true; // Set navigating flag
       router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
       setSearchQuery('');
+      setShowSuggestions(false);
     }
   };
+
+  const handleSuggestionClick = (suggestion: string) => {
+    isNavigatingRef.current = true; // Set navigating flag
+    setSearchQuery(suggestion);
+    setShowSuggestions(false);
+    router.push(`/search?q=${encodeURIComponent(suggestion)}`);
+  };
+
+  // Fetch suggestions when debounced search term changes
+  useEffect(() => {
+    if (debouncedSearch.trim() && !isNavigatingRef.current) { // Check navigating flag
+      const fetchSuggestions = async () => {
+        try {
+          const result = await searchProducts(debouncedSearch);
+          const productTitles = result.products.map(product => product.title);
+          setSuggestions(productTitles.slice(0, 5));
+          setShowSuggestions(true);
+        } catch (error) {
+          console.error('Error fetching suggestions:', error);
+          setSuggestions([]);
+        }
+      };
+      fetchSuggestions();
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    }
+  }, [debouncedSearch, searchProducts]);
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node) && !isNavigatingRef.current) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // Reset navigating flag after navigation
+  useEffect(() => {
+    const resetNavigationFlag = () => {
+      isNavigatingRef.current = false;
+    };
+
+    window.addEventListener('popstate', resetNavigationFlag);
+    return () => {
+      window.removeEventListener('popstate', resetNavigationFlag);
+    };
+  }, []);
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -109,17 +170,53 @@ export const Navbar = () => {
             <span className="text-xl font-bold">ShopHub</span>
           </Link>
 
-          <form onSubmit={handleSearch} className="flex-1 max-w-md mx-4">
-            <div className="relative">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search products..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8"
-              />
-            </div>
-          </form>
+          <div className="flex-1 max-w-md mx-4 relative" ref={searchRef}>
+            <form onSubmit={handleSearch}>
+              <div className="relative">
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search products..."
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setShowSuggestions(true);
+                  }}
+                  onFocus={() => setShowSuggestions(true)}
+                  className="pl-8"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchQuery('');
+                      setSuggestions([]);
+                    }}
+                    className="absolute right-2 top-2.5 text-muted-foreground hover:text-foreground"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+            </form>
+
+            {showSuggestions && suggestions.length > 0 && (
+              <div className="absolute z-10 mt-1 w-full bg-popover text-popover-foreground shadow-lg rounded-md border">
+                <ul className="py-1">
+                  {suggestions.map((suggestion, index) => (
+                    <li key={index}>
+                      <button
+                        type="button"
+                        onClick={() => handleSuggestionClick(suggestion)}
+                        className="w-full text-left px-4 py-2 hover:bg-accent hover:text-accent-foreground"
+                      >
+                        {suggestion}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
 
           <Sheet>
             <SheetTrigger asChild>
@@ -135,7 +232,7 @@ export const Navbar = () => {
                 )}
               </Button>
             </SheetTrigger>
-            <SheetContent>
+            <SheetContent className="px-5">
               <CartSheet />
             </SheetContent>
           </Sheet>
