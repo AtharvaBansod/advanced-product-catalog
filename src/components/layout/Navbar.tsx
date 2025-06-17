@@ -23,12 +23,12 @@ export const Navbar = () => {
   const router = useRouter();
   const debouncedSearch = useDebounce(searchQuery, 300);
   const searchRef = useRef<HTMLDivElement>(null);
-  const isNavigatingRef = useRef(false); // Add this ref
+  const isNavigatingRef = useRef(false); 
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      isNavigatingRef.current = true; // Set navigating flag
+      isNavigatingRef.current = true; 
       router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
       setSearchQuery('');
       setShowSuggestions(false);
@@ -36,15 +36,14 @@ export const Navbar = () => {
   };
 
   const handleSuggestionClick = (suggestion: string) => {
-    isNavigatingRef.current = true; // Set navigating flag
+    isNavigatingRef.current = true; 
     setSearchQuery(suggestion);
     setShowSuggestions(false);
     router.push(`/search?q=${encodeURIComponent(suggestion)}`);
   };
 
-  // Fetch suggestions when debounced search term changes
   useEffect(() => {
-    if (debouncedSearch.trim() && !isNavigatingRef.current) { // Check navigating flag
+    if (debouncedSearch.trim() && !isNavigatingRef.current) { 
       const fetchSuggestions = async () => {
         try {
           const result = await searchProducts(debouncedSearch);
@@ -63,7 +62,7 @@ export const Navbar = () => {
     }
   }, [debouncedSearch, searchProducts]);
 
-  // Close suggestions when clicking outside
+  
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(event.target as Node) && !isNavigatingRef.current) {
@@ -77,7 +76,7 @@ export const Navbar = () => {
     };
   }, []);
 
-  // Reset navigating flag after navigation
+  
   useEffect(() => {
     const resetNavigationFlag = () => {
       isNavigatingRef.current = false;

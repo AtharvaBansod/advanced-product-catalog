@@ -23,7 +23,7 @@ export const ProductFilters = ({ filters, onFiltersChange, onClearFilters }: Pro
     const loadCategories = async () => {
       try {
         const cats = await fetchCategories();
-        // Ensure categories are strings and filter out any null/undefined values
+        
         setCategories(cats.filter(c => typeof c === 'string').map(c => c.trim()).filter(c => c.length > 0));
       } catch (error) {
         console.error('Error loading categories:', error);
@@ -51,7 +51,7 @@ export const ProductFilters = ({ filters, onFiltersChange, onClearFilters }: Pro
 
   const hasActiveFilters = filters.category || filters.priceRange[0] > 0 || filters.priceRange[1] < 2000 || filters.rating > 0;
 
-  // Helper function to safely format category names
+  
   const formatCategoryName = (category: string) => {
     if (!category) return '';
     return category.charAt(0).toUpperCase() + category.slice(1);
