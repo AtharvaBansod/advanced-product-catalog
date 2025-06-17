@@ -21,6 +21,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Cad & Cart",
   description: "E-commerce platform",
+  icons: {
+    icon: [
+      { url: '/favicon.ico', type: 'image/x-icon' }
+    ]
+  }
 };
 
 export default function RootLayout({
@@ -30,6 +35,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased `}>
         <SocketProvider>
           <ThemeProvider>
