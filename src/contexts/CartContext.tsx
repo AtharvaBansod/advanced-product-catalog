@@ -1,8 +1,8 @@
-
 'use client';
 
 import { createContext, useContext, useState } from 'react';
 import { CartItem, Product } from '@/types';
+import { useSocket } from './SocketContext';
 
 interface CartContextType {
   cartItems: CartItem[];
@@ -19,19 +19,20 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const { socket, connected } = useSocket();
 
-  const addToCart = (product: Product) => {
+  const handleAddItem = (product: Product) => {
     setCartItems(prev => {
       const existingItem = prev.find(item => item.id === product.id);
       if (existingItem) {
         return prev.map(item =>
-          item.id === product.id 
-            ? { 
-                ...item, 
+          item.id === product.id
+            ? {
+                ...item,
                 quantity: item.quantity + 1,
                 total: (item.quantity + 1) * item.price,
                 discountedPrice: (item.quantity + 1) * (item.price * (1 - item.discountPercentage / 100))
-              } 
+              }
             : item
         );
       }
@@ -48,6 +49,29 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       return [...prev, newItem];
     });
   };
+
+const addToCart = (product: Product): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    if (process.env.NODE_ENV === 'development' && socket && connected) {
+      socket.emit('check-stock', product.id);
+      socket.once('stock-status', ({ productId, inStock }) => {
+        if (productId === product.id) {
+          if (inStock) {
+            handleAddItem(product);
+            resolve();
+          } else {
+            alert('Product is out of stock!');
+            reject(new Error('Out of stock'));
+          }
+        }
+      });
+    } else {
+      handleAddItem(product);
+      resolve();
+    }
+  });
+};
+
 
   const removeFromCart = (productId: number) => {
     setCartItems(prev => prev.filter(item => item.id !== productId));
@@ -85,16 +109,16 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const totalPrice = cartItems.reduce((sum, item) => sum + item.discountedPrice, 0);
 
   return (
-    <CartContext.Provider 
-      value={{ 
-        cartItems, 
+    <CartContext.Provider
+      value={{
+        cartItems,
         totalItems,
         totalPrice,
-        addToCart, 
+        addToCart,
         removeFromCart,
         updateQuantity,
-        isInCart, 
-        clearCart 
+        isInCart,
+        clearCart
       }}
     >
       {children}

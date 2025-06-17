@@ -3,12 +3,14 @@
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Star, ShoppingCart } from 'lucide-react';
+import { Star, ShoppingCart, Check } from 'lucide-react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Product } from '@/types';
 import { useCart } from '@/contexts/CartContext';
+import { useState } from 'react';
+import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 
 interface ProductCardProps {
   product: Product;
@@ -17,11 +19,18 @@ interface ProductCardProps {
 
 export const ProductCard = ({ product, index }: ProductCardProps) => {
   const { addToCart, isInCart } = useCart();
+  const [loading, setLoading] = useState(false);
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    addToCart(product);
+
+    setLoading(true);
+    try {
+      await addToCart(product); 
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -80,12 +89,23 @@ export const ProductCard = ({ product, index }: ProductCardProps) => {
           <CardFooter className="p-4 pt-0">
             <Button 
               onClick={handleAddToCart}
-              disabled={product.stock === 0}
+               disabled={loading || product.stock === 0}
               className="w-full"
               size="sm"
             >
-              <ShoppingCart className="h-4 w-4 mr-2" />
-              {product.stock === 0 ? 'Out of Stock' : isInCart(product.id) ? 'Added to Cart' : 'Add to Cart'}
+               {loading ? (
+                <LoadingSpinner size="sm" />
+              ) : isInCart(product.id) ? (
+                <>
+                 <Check className="h-4 w-4 mr-2" />
+                  Added
+                </>
+              ) : (
+                <>
+                  <ShoppingCart className="h-4 w-4 mr-2" />
+                  {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                </>
+              )}
             </Button>
           </CardFooter>
         </Card>
