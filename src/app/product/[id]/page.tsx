@@ -11,7 +11,7 @@ import { useRouter } from 'next/navigation';
 
 interface PageProps {
   params: {
-    id: string;
+    id: string | unknown;
   };
 }
 
