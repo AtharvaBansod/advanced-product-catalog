@@ -80,7 +80,9 @@ export const ApiProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return handleRequest(async () => {
       const response = await fetch('https://dummyjson.com/products/categories');
       if (!response.ok) throw new Error('Failed to fetch categories');
-      return response.json();
+      const data = await response.json();
+
+      return data.map((item: { slug: string }) => item.slug);
     });
   }, [handleRequest]);
 

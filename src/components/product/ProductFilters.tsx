@@ -23,6 +23,7 @@ export const ProductFilters = ({ filters, onFiltersChange, onClearFilters }: Pro
     const loadCategories = async () => {
       try {
         const cats = await fetchCategories();
+        console.log('Fetched categories:', cats);
         
         setCategories(cats.filter(c => typeof c === 'string').map(c => c.trim()).filter(c => c.length > 0));
       } catch (error) {
