@@ -18,6 +18,7 @@ An e-commerce product catalog with dynamic filtering, cart functionality, and pr
 - Category-based product filtering
 - Price range filtering
 - Responsive design for all devices
+- Dark/Light mode in Tailwind css
 
 ## Installation
 
