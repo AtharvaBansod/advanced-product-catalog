@@ -9,7 +9,13 @@ import { Product } from '@/types';
 import { useApiContext } from '@/contexts/ApiContext';
 import { useRouter } from 'next/navigation';
 
-export default function ProductPage({ params }: { params: { id: string } }) {
+interface PageProps {
+  params: {
+    id: string;
+  };
+}
+
+export default function ProductPage({ params }: PageProps) {
     const router = useRouter();
     const { fetchProductById, fetchProductsByCategory } = useApiContext();
     const { addToCart, isInCart } = useCart();
