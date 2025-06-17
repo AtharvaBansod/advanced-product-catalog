@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -6,16 +7,16 @@ import { useApiContext } from '@/contexts/ApiContext';
 import { ProductGrid } from '@/components/product/ProductGrid';
 import { ProductFilters } from '@/components/product/ProductFilters';
 import { Pagination } from '@/components/common/Pagination';
-import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { Button } from '@/components/ui/button';
 import { Filter } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 8;
 
 export default function HomePage() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
   const [filters, setFilters] = useState<FilterOptions>({
@@ -25,7 +26,6 @@ export default function HomePage() {
     sortBy: 'default',
   });
   const [isMobile, setIsMobile] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
 
   const { fetchProducts, fetchProductsByCategory, loading } = useApiContext();
 
@@ -38,57 +38,42 @@ export default function HomePage() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  const loadProducts = useCallback(async (page = 1, append = false) => {
+  // Fetch products based on filters
+  const loadProducts = useCallback(async () => {
     try {
       let result;
       if (filters.category) {
+        // When category filter is applied, fetch all products in that category
         result = await fetchProductsByCategory(filters.category);
+        setAllProducts(result.products);
+        setTotalProducts(result.products.length);
       } else {
-        result = await fetchProducts(page, ITEMS_PER_PAGE);
+        // For initial load or when no category filter, fetch paginated products
+        result = await fetchProducts(0, 100); // Fetch first 100 products or adjust as needed
+        setAllProducts(result.products);
+        setTotalProducts(result.total);
       }
-
-      if (append) {
-        setProducts(prev => [...prev, ...result.products]);
-      } else {
-        setProducts(result.products);
-      }
-      
-      setTotalProducts(result.total);
-      setHasMore(result.products.length === ITEMS_PER_PAGE && (page * ITEMS_PER_PAGE) < result.total);
     } catch (error) {
       console.error('Error loading products:', error);
     }
   }, [fetchProducts, fetchProductsByCategory, filters.category]);
 
-  const loadMore = useCallback(async () => {
-    if (!hasMore || loading) return;
-    const nextPage = Math.floor(products.length / ITEMS_PER_PAGE) + 1;
-    await loadProducts(nextPage, true);
-  }, [hasMore, loading, products.length, loadProducts]);
-
-  const { isFetching } = useInfiniteScroll({
-    fetchMore: loadMore,
-    hasMore: hasMore && isMobile,
-  });
-
+  // Apply all filters and sorting
   useEffect(() => {
-    loadProducts(1, false);
-    setCurrentPage(1);
-  }, [filters.category]);
+    let filtered = [...allProducts];
 
-  useEffect(() => {
-    let filtered = [...products];
+    // Apply price range filter
+    filtered = filtered.filter(
+      product => product.price >= filters.priceRange[0] && 
+                product.price <= filters.priceRange[1]
+    );
 
-    if (filters.priceRange[0] > 0 || filters.priceRange[1] < 2000) {
-      filtered = filtered.filter(
-        product => product.price >= filters.priceRange[0] && product.price <= filters.priceRange[1]
-      );
-    }
-
+    // Apply minimum rating filter
     if (filters.rating > 0) {
       filtered = filtered.filter(product => product.rating >= filters.rating);
     }
 
+    // Apply sorting
     switch (filters.sortBy) {
       case 'price-low':
         filtered.sort((a, b) => a.price - b.price);
@@ -102,10 +87,26 @@ export default function HomePage() {
       case 'name':
         filtered.sort((a, b) => a.title.localeCompare(b.title));
         break;
+      default:
+        // Default sorting (perhaps by ID or as returned from API)
+        break;
     }
 
     setFilteredProducts(filtered);
-  }, [products, filters]);
+    setCurrentPage(1); // Reset to first page whenever filters change
+  }, [allProducts, filters]);
+
+  // Update displayed products for current page
+  useEffect(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    const end = start + ITEMS_PER_PAGE;
+    setDisplayedProducts(filteredProducts.slice(start, end));
+  }, [currentPage, filteredProducts]);
+
+  // Load products when component mounts or filters change
+  useEffect(() => {
+    loadProducts();
+  }, [loadProducts]);
 
   const handleFiltersChange = (newFilters: FilterOptions) => {
     setFilters(newFilters);
@@ -124,10 +125,6 @@ export default function HomePage() {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-
-  const paginatedProducts = isMobile 
-    ? filteredProducts 
-    : filteredProducts.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
 
@@ -164,16 +161,14 @@ export default function HomePage() {
           <div className="mb-6">
             <h1 className="text-2xl font-bold mb-2">Products</h1>
             <p className="text-muted-foreground">
-              Showing {paginatedProducts.length} of {filteredProducts.length} products
+              Showing {displayedProducts.length} of {filteredProducts.length} products
+              {totalPages > 1 && ` (Page ${currentPage} of ${totalPages})`}
             </p>
           </div>
 
-          <ProductGrid 
-            products={paginatedProducts} 
-            loading={loading || isFetching} 
-          />
+          <ProductGrid products={displayedProducts} loading={loading} />
 
-          {!isMobile && totalPages > 1 && (
+          {totalPages > 1 && (
             <div className="mt-8">
               <Pagination
                 currentPage={currentPage}

@@ -18,17 +18,17 @@ export const ProductGrid = ({ products, loading = false }: ProductGridProps) => 
     );
   }
 
-  if (products.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
-        <h3 className="text-lg font-semibold mb-2">No products found</h3>
-        <p className="text-muted-foreground">Try adjusting your filters or search terms</p>
-      </div>
-    );
-  }
+//   if (products.length === 0) {
+//     return (
+//       <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
+//         <h3 className="text-lg font-semibold mb-2">No products found</h3>
+//         <p className="text-muted-foreground">Try adjusting your filters or search terms</p>
+//       </div>
+//     );
+//   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {products.map((product, index) => (
         <ProductCard key={product.id} product={product} index={index} />
       ))}
