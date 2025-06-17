@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import { Star, ChevronLeft, ShoppingCart, ShoppingBasketIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,14 +10,9 @@ import { Product } from '@/types';
 import { useApiContext } from '@/contexts/ApiContext';
 import { useRouter } from 'next/navigation';
 
-interface PageProps {
-  params: {
-    id: string | unknown;
-  };
-}
-
-export default function ProductPage({ params }: PageProps) {
+export default function ProductPage() {
     const router = useRouter();
+    const params = useParams();
     const { fetchProductById, fetchProductsByCategory } = useApiContext();
     const { addToCart, isInCart } = useCart();
     const [product, setProduct] = useState<Product | null>(null);
@@ -27,8 +23,9 @@ export default function ProductPage({ params }: PageProps) {
     const [hoverRating, setHoverRating] = useState(0);
     const [reviews, setReviews] = useState<{ rating: number, comment: string }[]>([]);
     const [comment, setComment] = useState('');
-
     const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
+
+    const productId = Number(params.id);
 
     useEffect(() => {
         const loadSimilarProducts = async () => {
@@ -47,11 +44,10 @@ export default function ProductPage({ params }: PageProps) {
         if (product) loadSimilarProducts();
     }, [product, fetchProductsByCategory]);
 
-
     useEffect(() => {
         const loadProduct = async () => {
             try {
-                const data = await fetchProductById(Number(params.id));
+                const data = await fetchProductById(productId);
                 setProduct(data);
                 setReviews(data.reviews || []);
             } catch (err) {
@@ -62,7 +58,7 @@ export default function ProductPage({ params }: PageProps) {
             }
         };
         loadProduct();
-    }, [params.id, fetchProductById]);
+    }, [productId, fetchProductById]);
 
     const handleAddToCart = () => {
         if (product) {

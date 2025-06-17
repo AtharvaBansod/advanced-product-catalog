@@ -6,7 +6,7 @@ import { ShoppingCart, Search, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger,SheetTitle  } from '@/components/ui/sheet';
 import { useCart } from '@/contexts/CartContext';
 import { CartSheet } from '@/components/cart/CartSheet';
 import { useRouter } from 'next/navigation';
@@ -147,32 +147,37 @@ export const Navbar = () => {
                         )}
                     </div>
 
-<div className='flex gap-2 '>
+                    <div className='flex gap-2 '>
 
 
-                    <Button variant="ghost" size="sm" onClick={toggleDark} className='hover:cursor-pointer'>
-                        {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-                    </Button>
+                        <Button variant="ghost" size="sm" onClick={toggleDark} className='hover:cursor-pointer'>
+                            {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                        </Button>
 
 
-                    <Sheet>
-                        <SheetTrigger asChild>
-                            <Button variant="outline" size="sm" className="relative hover:cursor-pointer">
-                                <ShoppingCart className="h-4 w-4 " />
-                                {totalItems > 0 && (
-                                    <Badge
-                                        variant="destructive"
-                                        className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs"
-                                    >
-                                        {totalItems}
-                                    </Badge>
-                                )}
-                            </Button>
-                        </SheetTrigger>
-                        <SheetContent className="px-5">
-                            <CartSheet />
-                        </SheetContent>
-                    </Sheet>
+                       
+
+                        <Sheet>
+                            <SheetTrigger asChild>
+                                <Button variant="outline" size="sm" className="relative hover:cursor-pointer">
+                                    <ShoppingCart className="h-4 w-4" />
+                                    {totalItems > 0 && (
+                                        <Badge
+                                            variant="destructive"
+                                            className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                                        >
+                                            {totalItems}
+                                        </Badge>
+                                    )}
+                                </Button>
+                            </SheetTrigger>
+                            <SheetContent className="px-5">
+                                <div className="flex flex-col h-full">
+                                     <SheetTitle className="text-lg font-semibold mb-4">Your Cart ({totalItems})</SheetTitle>
+                                    <CartSheet />
+                                </div>
+                            </SheetContent>
+                        </Sheet>
                     </div>
                 </div>
             </div>
