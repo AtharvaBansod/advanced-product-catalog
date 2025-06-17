@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ShopHub",
+  title: "Cad & Cart",
   description: "E-commerce platform",
 };
 

@@ -96,7 +96,7 @@ export const Navbar = () => {
             <div className="container mx-auto px-4">
                 <div className="flex h-14 items-center justify-between">
                     <Link href="/" className="flex items-center space-x-2">
-                        <span className="text-xl font-bold">ShopHub</span>
+                        <span className="text-xl font-bold">Cad & Cart</span>
                     </Link>
 
                     <div className="flex-1 max-w-md mx-4 relative" ref={searchRef}>
