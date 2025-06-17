@@ -6,12 +6,14 @@ import { useSearchParams } from 'next/navigation';
 import { useApiContext } from '@/contexts/ApiContext';
 import { ProductGrid } from '@/components/product/ProductGrid';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
+import { Product, SearchResult } from '@/types';
 
 export default function SearchPage() {
   const searchParams = useSearchParams();
   const query = searchParams.get('q') || '';
   const { searchProducts, loading } = useApiContext();
-  const [results, setResults] = useState<any>(null);
+  const [results, setResults] = useState<SearchResult | null>(null);
+
 
   useEffect(() => {
     if (query) {

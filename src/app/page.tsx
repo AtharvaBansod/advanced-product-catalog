@@ -194,7 +194,8 @@ export default function HomePage() {
             <h1 className="text-2xl font-bold mb-2">Products</h1>
             <p className="text-muted-foreground">
              
-              {!isMobile && totalPages > 1 && ` (Page ${currentPage} of ${totalPages})`}
+              {!isMobile && totalPages > 1 && ` (Page ${currentPage} of ${totalPages}) - `}
+              {totalProducts}
             </p>
           </div>
 

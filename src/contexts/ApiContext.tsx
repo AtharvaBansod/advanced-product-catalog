@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import { Product, ProductsResponse, SearchResult, ApiResponse } from '@/types';
+import { Product, ProductsResponse, SearchResult } from '@/types';
 
 
 interface ApiContextType {

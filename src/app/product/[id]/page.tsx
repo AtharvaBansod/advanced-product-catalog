@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { Star, ChevronLeft, ShoppingCart, ShoppingBag, ShoppingBasketIcon } from 'lucide-react';
+import { Star, ChevronLeft, ShoppingCart, ShoppingBasketIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/contexts/CartContext';
 import { Product } from '@/types';
