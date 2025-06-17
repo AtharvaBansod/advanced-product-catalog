@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
-import { Star, ChevronLeft, ShoppingCart, ShoppingBasketIcon } from 'lucide-react';
+import { Star, ChevronLeft, ShoppingCart, ShoppingBagIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/contexts/CartContext';
 import { Product } from '@/types';
@@ -270,7 +270,7 @@ export default function ProductPage() {
 
                 {similarProducts.length > 0 && (
                     <div className="mt-16">
-                        <h2 className="text-2xl font-bold mb-6 flex gap-3 items-center">Similar Products - Category wise <ShoppingBasketIcon/> </h2>
+                        <h2 className="text-2xl font-bold mb-6 flex gap-3 items-center">Similar Products | Category wise <ShoppingBagIcon/> </h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
                             {similarProducts.map((item) => (
                                 <div
